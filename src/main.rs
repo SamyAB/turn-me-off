@@ -1,4 +1,7 @@
-use axum::{http::StatusCode, routing::get, Router};
+use axum::{
+    routing::{get, put},
+    Router,
+};
 use tokio::signal;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -10,7 +13,8 @@ async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         paths(
-            alive,
+            api::alive,
+            api::turn_off,
         ),
         tags(
             (name="turn-me-off", description="HTTP API to turn off the device on which it is deployed")
@@ -24,7 +28,8 @@ async fn main() {
 
     let app = Router::new()
         .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        .route("/alive", get(alive))
+        .route("/alive", get(api::alive))
+        .route("/turn-off", put(api::turn_off))
         .layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
@@ -44,10 +49,24 @@ async fn main() {
         .expect("This should run to the end of the program");
 }
 
-/// A route to check if the turn-me-off server is alive.
-#[utoipa::path(get, path = "/alive", responses((status = 200, body = String, description = "Alive message")))]
-async fn alive() -> (StatusCode, &'static str) {
-    (StatusCode::OK, "turn-me-off is alive")
+mod api {
+    use axum::http::StatusCode;
+
+    /// Checks if the turn-me-off server is alive.
+    #[utoipa::path(get, path = "/alive", responses((status = 200, body = String, description = "Alive message")))]
+    pub async fn alive() -> (StatusCode, &'static str) {
+        (StatusCode::OK, "turn-me-off is alive")
+    }
+
+    /// Turns off the machine on which this HTTP server runs.
+    #[utoipa::path(put, path = "/turn-off", responses((status = 200, body = String, description = "Turn off message")))]
+    pub async fn turn_off() -> (StatusCode, &'static str) {
+        tokio::process::Command::new("/usr/bin/systemctl")
+            .arg("poweroff")
+            .spawn()
+            .expect("I should be able to run the command");
+        (StatusCode::OK, "This machine will now turn off.")
+    }
 }
 
 /// Handles graceful shutdown for Ctrl+c and SIGTERM signals.
