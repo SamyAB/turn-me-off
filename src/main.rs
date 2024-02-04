@@ -1,4 +1,5 @@
 use axum::{http::StatusCode, routing::get, Router};
+use tokio::signal;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use utoipa::OpenApi;
@@ -38,12 +39,36 @@ async fn main() {
     );
 
     axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown())
         .await
         .expect("This should run to the end of the program");
 }
 
-/// A route to check if the turn-me-off server is alive
-#[utoipa::path(get, path = "/alive")]
+/// A route to check if the turn-me-off server is alive.
+#[utoipa::path(get, path = "/alive", responses((status = 200, body = String, description = "Alive message")))]
 async fn alive() -> (StatusCode, &'static str) {
     (StatusCode::OK, "turn-me-off is alive")
+}
+
+/// Handles graceful shutdown for Ctrl+c and SIGTERM signals.
+///
+/// Note that this only works on unix based systems.
+async fn shutdown() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+c listener");
+    };
+
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM listener")
+            .recv()
+            .await
+    };
+
+    tokio::select! {
+        () = ctrl_c => { tracing::debug!("Ctrl+c received. Bye!")},
+        _ = terminate => { tracing::debug!("SIGTERM received. Bye!")},
+    }
 }
