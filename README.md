@@ -1,5 +1,11 @@
 # Turn Me Off
 
+<div align="center">
+
+![Format and Lints](https://github.com/SamyAB/genetic-sat/actions/workflows/check.yml/badge.svg)
+
+</div>
+
 An API to turn off devices it is deployed on.
 
 ## Compatibility
