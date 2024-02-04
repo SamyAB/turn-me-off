@@ -1,14 +1,28 @@
 use axum::{http::StatusCode, routing::get, Router};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main]
 async fn main() {
+    #[derive(OpenApi)]
+    #[openapi(
+        paths(
+            alive,
+        ),
+        tags(
+            (name="turn-me-off", description="HTTP API to turn off the device on which it is deployed")
+        )
+    )]
+    struct ApiDoc;
+
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
         .init();
 
     let app = Router::new()
+        .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/alive", get(alive))
         .layer(TraceLayer::new_for_http());
 
@@ -29,6 +43,7 @@ async fn main() {
 }
 
 /// A route to check if the turn-me-off server is alive
+#[utoipa::path(get, path = "/alive")]
 async fn alive() -> (StatusCode, &'static str) {
     (StatusCode::OK, "turn-me-off is alive")
 }
