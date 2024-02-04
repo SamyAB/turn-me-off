@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Format and Lints](https://github.com/SamyAB/genetic-sat/actions/workflows/check.yml/badge.svg)
+![Format and Lints](https://github.com/SamyAB/turn-me-off/actions/workflows/check.yml/badge.svg)
 
 </div>
 
