@@ -32,3 +32,10 @@ The `turn-me-off` binary should located in `target/release/`.
 
 Executing the binary starts the HTTP server, and you should be able to access a
 Swagger UI documenting the API at the address http://localhost:3000/docs/#/
+
+Note that the port 3000 is the default port, to control the port on which it listens,
+you can use the environment variable `TMF_PORT`:
+
+```Shell
+TMF_PORT=3001 turn-me-off
+```

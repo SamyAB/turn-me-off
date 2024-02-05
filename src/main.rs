@@ -32,9 +32,11 @@ async fn main() {
         .route("/turn-off", put(api::turn_off))
         .layer(TraceLayer::new_for_http());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let port = std::env::var("TMF_PORT").unwrap_or(String::from("3000"));
+    let full_url = format!("0.0.0.0:{port}");
+    let listener = tokio::net::TcpListener::bind(full_url)
         .await
-        .expect("Could not add listen on port 3000");
+        .unwrap_or_else(|_| panic!("Could not listen on port {port}"));
 
     tracing::debug!(
         "Linstening on {}",
