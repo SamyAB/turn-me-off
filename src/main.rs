@@ -23,6 +23,10 @@ async fn main() {
     struct ApiDoc;
 
     tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "turn_me_off=info".into()),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -38,7 +42,7 @@ async fn main() {
         .await
         .unwrap_or_else(|_| panic!("Could not listen on port {port}"));
 
-    tracing::debug!(
+    tracing::info!(
         "Linstening on {}",
         listener
             .local_addr()
@@ -89,7 +93,7 @@ async fn shutdown() {
     };
 
     tokio::select! {
-        () = ctrl_c => { tracing::debug!("Ctrl+c received. Bye!")},
-        _ = terminate => { tracing::debug!("SIGTERM received. Bye!")},
+        () = ctrl_c => { tracing::info!("Ctrl+c received. Bye!")},
+        _ = terminate => { tracing::info!("SIGTERM received. Bye!")},
     }
 }
