@@ -12,6 +12,13 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 utoipa = { version ="4.2.0", features=["axum_extras"] }
 utoipa-swagger-ui = { version="6", features = ["axum"] }
 
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
 [lints.clippy]
 pedantic = "deny"
 dbg_macro = "deny"
