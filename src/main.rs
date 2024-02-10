@@ -65,13 +65,37 @@ mod api {
     }
 
     /// Turns off the machine on which this HTTP server runs.
-    #[utoipa::path(put, path = "/turn-off", responses((status = 200, body = String, description = "Turn off message")))]
+    #[utoipa::path(
+        put,
+        path = "/turn-off",
+        responses(
+            (status = 200, body = String, description = "Turn off message"),
+            (status = 403, body = String, description = "Command faild message"),
+            (status = 500, body = String, description = "Command faild message"),
+            (status = 501, body = String, description = "Command faild message"),
+        ),
+    )]
     pub async fn turn_off() -> (StatusCode, &'static str) {
-        tokio::process::Command::new("/usr/bin/systemctl")
+        let poweroff_output = tokio::process::Command::new("/usr/bin/systemctl")
             .arg("poweroff")
-            .spawn()
-            .expect("I should be able to run the command");
-        (StatusCode::OK, "This machine will now turn off.")
+            .arg("--no-ask-password")
+            .output()
+            .await
+            .expect("Unable to run a process with the command systemctl");
+
+        match poweroff_output.status.code() {
+            Some(0) => (StatusCode::OK, "This machine will now turn off."),
+            Some(1) => {
+                let error_message = String::from_utf8(poweroff_output.stderr).expect("The error messages from systemctl do not contain non UTF-8 characters");
+                if error_message.contains("Interactive authentication required.") {
+                    (StatusCode::FORBIDDEN, "The user running turn-me-off does have the permission to shutdown the device.")
+                } else {
+                    (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason, status code 1.")
+                }
+            },
+            Some(_) => (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason."),
+            None => (StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error occured while running the shutdown command, please file an issue."),
+        }
     }
 }
 
