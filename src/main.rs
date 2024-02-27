@@ -8,6 +8,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+mod api;
+
 #[tokio::main]
 async fn main() {
     #[derive(OpenApi)]
@@ -15,9 +17,13 @@ async fn main() {
         paths(
             api::alive,
             api::turn_off,
+            api::reboot,
         ),
         tags(
-            (name="turn-me-off", description="HTTP API to turn off the device on which it is deployed")
+            (
+                name="turn-me-off",
+                description="HTTP API to turn off and reboot the device on which it is deployed",
+            )
         )
     )]
     struct ApiDoc;
@@ -34,6 +40,7 @@ async fn main() {
         .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/alive", get(api::alive))
         .route("/turn-off", put(api::turn_off))
+        .route("/reboot", put(api::reboot))
         .layer(TraceLayer::new_for_http());
 
     let port = std::env::var("TMF_PORT").unwrap_or(String::from("3000"));
@@ -53,49 +60,6 @@ async fn main() {
         .with_graceful_shutdown(shutdown())
         .await
         .expect("This should run to the end of the program");
-}
-
-mod api {
-    use axum::http::StatusCode;
-
-    /// Checks if the turn-me-off server is alive.
-    #[utoipa::path(get, path = "/alive", responses((status = 200, body = String, description = "Alive message")))]
-    pub async fn alive() -> (StatusCode, &'static str) {
-        (StatusCode::OK, "turn-me-off is alive")
-    }
-
-    /// Turns off the machine on which this HTTP server runs.
-    #[utoipa::path(
-        put,
-        path = "/turn-off",
-        responses(
-            (status = 200, body = String, description = "Turn off message"),
-            (status = 500, body = String, description = "Command failed message"),
-            (status = 501, body = String, description = "Command failed message"),
-        ),
-    )]
-    pub async fn turn_off() -> (StatusCode, &'static str) {
-        let poweroff_output = tokio::process::Command::new("/usr/bin/systemctl")
-            .arg("poweroff")
-            .arg("--no-ask-password")
-            .output()
-            .await
-            .expect("Unable to run a process with the command systemctl");
-
-        match poweroff_output.status.code() {
-            Some(0) => (StatusCode::OK, "This machine will now turn off."),
-            Some(1) => {
-                let error_message = String::from_utf8(poweroff_output.stderr).expect("The error messages from systemctl do not contain non UTF-8 characters");
-                if error_message.contains("Interactive authentication required.") {
-                    (StatusCode::INTERNAL_SERVER_ERROR, "The user running turn-me-off does have the permission to shutdown the device.")
-                } else {
-                    (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason, status code 1.")
-                }
-            },
-            Some(_) => (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason."),
-            None => (StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error occurred while running the shutdown command, please file an issue."),
-        }
-    }
 }
 
 /// Handles graceful shutdown for Ctrl+c and SIGTERM signals.
