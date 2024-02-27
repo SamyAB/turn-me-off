@@ -97,3 +97,13 @@ pub async fn reboot() -> (StatusCode, &'static str) {
         ),
     }
 }
+
+/// Get the hostname of the device on which turn-me-off is running
+#[utoipa::path(get, path = "/hostname", responses((status = 200, body = String, description = "Hostname of the device")))]
+pub async fn hostname() -> (StatusCode, String) {
+    let host_name = tokio::fs::read_to_string("/etc/hostname")
+        .await
+        .expect("We should be able to read the content of /etc/hostname");
+
+    (StatusCode::OK, host_name)
+}
