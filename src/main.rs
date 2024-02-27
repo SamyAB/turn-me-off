@@ -70,9 +70,8 @@ mod api {
         path = "/turn-off",
         responses(
             (status = 200, body = String, description = "Turn off message"),
-            (status = 403, body = String, description = "Command faild message"),
-            (status = 500, body = String, description = "Command faild message"),
-            (status = 501, body = String, description = "Command faild message"),
+            (status = 500, body = String, description = "Command failed message"),
+            (status = 501, body = String, description = "Command failed message"),
         ),
     )]
     pub async fn turn_off() -> (StatusCode, &'static str) {
@@ -88,13 +87,13 @@ mod api {
             Some(1) => {
                 let error_message = String::from_utf8(poweroff_output.stderr).expect("The error messages from systemctl do not contain non UTF-8 characters");
                 if error_message.contains("Interactive authentication required.") {
-                    (StatusCode::FORBIDDEN, "The user running turn-me-off does have the permission to shutdown the device.")
+                    (StatusCode::INTERNAL_SERVER_ERROR, "The user running turn-me-off does have the permission to shutdown the device.")
                 } else {
                     (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason, status code 1.")
                 }
             },
             Some(_) => (StatusCode::NOT_IMPLEMENTED, "Shutdown command failed for unknown reason."),
-            None => (StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error occured while running the shutdown command, please file an issue."),
+            None => (StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error occurred while running the shutdown command, please file an issue."),
         }
     }
 }
