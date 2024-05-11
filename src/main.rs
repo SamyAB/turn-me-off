@@ -52,7 +52,7 @@ async fn main() {
         .unwrap_or_else(|_| panic!("Could not listen on port {port}"));
 
     tracing::info!(
-        "Linstening on {}",
+        "Listening on {}",
         listener
             .local_addr()
             .expect("We should be able to get the address on which we listen if we are listening")
