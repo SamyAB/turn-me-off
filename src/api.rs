@@ -134,7 +134,7 @@ pub async fn suspend() -> (StatusCode, &'static str) {
             if error_message.contains("Interactive authentication required.") {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "The user running turn-me-off does not have the permission to reboot the device.\n",
+                    "The user running turn-me-off does not have the permission to suspend the device.\n",
                 )
             } else {
                 (
