@@ -1,6 +1,6 @@
 use axum::{
-    routing::{get, put},
     Router,
+    routing::{get, put},
 };
 use tokio::signal;
 use tower_http::trace::TraceLayer;
