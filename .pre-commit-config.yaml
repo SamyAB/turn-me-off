@@ -6,6 +6,10 @@ repos:
       - id: trailing-whitespace
       - id: check-yaml
       - id: check-toml
+- repo: https://github.com/crate-ci/typos
+  rev: v1.31.0
+  hooks:
+    - id: typos
 - repo: local
   hooks:
       - id: cargo-fmt
