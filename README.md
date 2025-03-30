@@ -20,13 +20,11 @@ which is most of linux distributions these days.
 To build `turn-me-off`, you need to have the Rust toolchain installed on your machine,
 if you don't have it, install it using [rustup](https://rustup.rs/).
 
-To build the executable you can run:
+To build and install the executable you can run:
 
 ```Shell
-cargo build -r
+cargo install --git https://github.com/SamyAB/turn-me-off
 ```
-
-The `turn-me-off` binary should located in `target/release/`.
 
 ## Usage
 
