@@ -18,6 +18,7 @@ async fn main() {
             api::alive,
             api::turn_off,
             api::reboot,
+            api::suspend,
             api::hostname,
         ),
         tags(
@@ -42,6 +43,7 @@ async fn main() {
         .route("/alive", get(api::alive))
         .route("/turn-off", put(api::turn_off))
         .route("/reboot", put(api::reboot))
+        .route("/suspend", put(api::suspend))
         .route("/hostname", get(api::hostname))
         .layer(TraceLayer::new_for_http());
 
