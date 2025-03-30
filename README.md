@@ -23,7 +23,7 @@ if you don't have it, install it using [rustup](https://rustup.rs/).
 To build and install the executable you can run:
 
 ```Shell
-cargo install --git https://github.com/SamyAB/turn-me-off
+cargo install --git https://github.com/SamyAB/turn-me-off --locked
 ```
 
 ## Usage
