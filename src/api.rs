@@ -25,29 +25,29 @@ pub async fn turn_off() -> (StatusCode, &'static str) {
         .expect("Unable to run a process with the command systemctl");
 
     match poweroff_output.status.code() {
-        Some(0) => (StatusCode::OK, "This machine will now turn off./n"),
+        Some(0) => (StatusCode::OK, "This machine will now turn off.\n"),
         Some(1) => {
             let error_message = String::from_utf8(poweroff_output.stderr)
                 .expect("The error messages from systemctl do not contain non UTF-8 characters");
             if error_message.contains("Interactive authentication required.") {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "The user running turn-me-off does not have the permission to shutdown the device./n",
+                    "The user running turn-me-off does not have the permission to shutdown the device.\n",
                 )
             } else {
                 (
                     StatusCode::NOT_IMPLEMENTED,
-                    "Shutdown command failed for unknown reason, status code 1./n",
+                    "Shutdown command failed for unknown reason, status code 1.\n",
                 )
             }
         }
         Some(_) => (
             StatusCode::NOT_IMPLEMENTED,
-            "Shutdown command failed for unknown reason./n",
+            "Shutdown command failed for unknown reason.\n",
         ),
         None => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Unexpected error occurred while running the shutdown command, please file an issue./n",
+            "Unexpected error occurred while running the shutdown command, please file an issue.\n",
         ),
     }
 }
@@ -71,29 +71,29 @@ pub async fn reboot() -> (StatusCode, &'static str) {
         .expect("Unable to run a process with the command systemctl");
 
     match poweroff_output.status.code() {
-        Some(0) => (StatusCode::OK, "This machine will now reboot./n"),
+        Some(0) => (StatusCode::OK, "This machine will now reboot.\n"),
         Some(1) => {
             let error_message = String::from_utf8(poweroff_output.stderr)
                 .expect("The error messages from systemctl do not contain non UTF-8 characters");
             if error_message.contains("Interactive authentication required.") {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "The user running turn-me-off does not have the permission to reboot the device./n",
+                    "The user running turn-me-off does not have the permission to reboot the device.\n",
                 )
             } else {
                 (
                     StatusCode::NOT_IMPLEMENTED,
-                    "Reboot command failed for unknown reason, status code 1./n",
+                    "Reboot command failed for unknown reason, status code 1.\n",
                 )
             }
         }
         Some(_) => (
             StatusCode::NOT_IMPLEMENTED,
-            "Reboot command failed for unknown reason./n",
+            "Reboot command failed for unknown reason.\n",
         ),
         None => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Unexpected error occurred while running the reboot command, please file an issue./n",
+            "Unexpected error occurred while running the reboot command, please file an issue.\n",
         ),
     }
 }
@@ -127,29 +127,29 @@ pub async fn suspend() -> (StatusCode, &'static str) {
         .expect("Unable to run a process with the command systemctl");
 
     match suspend_output.status.code() {
-        Some(0) => (StatusCode::OK, "This machine will now enter sleep mode./n"),
+        Some(0) => (StatusCode::OK, "This machine will now enter sleep mode.\n"),
         Some(1) => {
             let error_message = String::from_utf8(suspend_output.stderr)
                 .expect("The error messages from systemctl do not contain non UTF-8 characters");
             if error_message.contains("Interactive authentication required.") {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "The user running turn-me-off does not have the permission to reboot the device./n",
+                    "The user running turn-me-off does not have the permission to reboot the device.\n",
                 )
             } else {
                 (
                     StatusCode::NOT_IMPLEMENTED,
-                    "Suspend command failed for unknown reason, status code 1./n",
+                    "Suspend command failed for unknown reason, status code 1.\n",
                 )
             }
         }
         Some(_) => (
             StatusCode::NOT_IMPLEMENTED,
-            "Reboot command failed for unknown reason./n",
+            "Reboot command failed for unknown reason.\n",
         ),
         None => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Unexpected error occurred while running the reboot command, please file an issue./n",
+            "Unexpected error occurred while running the reboot command, please file an issue.\n",
         ),
     }
 }
