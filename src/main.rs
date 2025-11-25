@@ -10,6 +10,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod api;
 
+#[allow(clippy::needless_for_each)]
 #[tokio::main]
 async fn main() {
     #[derive(OpenApi)]
