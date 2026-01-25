@@ -1,0 +1,32 @@
+[Unit]
+Description=Turn Me Off - HTTP API for system power management
+Documentation=https://github.com/SamyAB/turn-me-off
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Update this path according to your installation
+ExecStart=/usr/local/bin/turn-me-off
+Restart=on-failure
+RestartSec=5s
+
+# Environment variables
+Environment="TMF_PORT=3000"
+Environment="RUST_LOG=turn_me_off=info"
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=turn-me-off
+
+[Install]
+WantedBy=multi-user.target
